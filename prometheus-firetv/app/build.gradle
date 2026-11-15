@@ -1,0 +1,37 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'uk.co.valeinteractive.prometheus'
+    compileSdk 36
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    defaultConfig {
+        def server = providers.gradleProperty("prometheusServerUrl")
+            .getOrElse("https://prometheus.example.com/")
+        def origin = new URI(server)
+        if (origin.scheme != "https" || !origin.host || origin.userInfo ||
+                origin.query != null || origin.fragment != null ||
+                !(origin.path in ["", "/"])) {
+            throw new GradleException("prometheusServerUrl must be an HTTPS origin")
+        }
+        def homeUrl = server.endsWith("/") ? server : server + "/"
+        buildConfigField "String", "PROMETHEUS_HOME_URL", groovy.json.JsonOutput.toJson(homeUrl)
+
+        applicationId 'uk.co.valeinteractive.prometheus'
+        minSdk 25
+        targetSdk 28
+
+        versionCode 2
+        versionName '0.2.0'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

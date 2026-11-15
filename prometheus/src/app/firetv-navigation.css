@@ -1,0 +1,8 @@
+/* Clear directional focus for the Fire TV remote. */
+main :is(a[href], button, [tabindex]):focus-visible,
+.prometheus-header a[href]:focus-visible {
+  z-index: 20;
+  outline: 4px solid #fff !important;
+  outline-offset: 5px !important;
+  box-shadow: 0 0 0 8px #c9ad7c, 0 0 28px #fff9 !important;
+}

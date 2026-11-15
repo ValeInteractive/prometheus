@@ -1,0 +1,139 @@
+.prometheus-home-page > .prometheus-header.prometheus-header {
+  position: fixed;
+  background: linear-gradient(#121212fa, #121212ed);
+}
+
+.prometheus-home-page .prometheus-row:has(.prometheus-home-rail) {
+  scroll-margin-top: clamp(3.5rem, 8vh, 6rem);
+  margin-bottom: clamp(1rem, 3vh, 2.5rem);
+}
+
+.prometheus-home-rail {
+  --rail-art-height: clamp(8rem, 38vh, 28rem);
+  --rail-gap: clamp(.45rem, 1vw, 1rem);
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--rail-gap);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 4px 4px .3rem;
+}
+
+.prometheus-home-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.prometheus-home-rail::after {
+  content: "";
+  flex: 0 0 max(0px, calc(100% - var(--rail-art-height) * 16 / 9 - var(--rail-gap)));
+}
+
+.prometheus-home-page .prometheus-home-rail > .prometheus-card {
+  flex: 0 0 calc(var(--rail-art-height) * 2 / 3);
+  width: auto;
+  height: var(--rail-art-height);
+  border-radius: .4rem;
+  transform: none;
+  box-shadow: none;
+}
+
+.prometheus-home-page .prometheus-home-rail > .prometheus-card:focus-within {
+  flex-basis: calc(var(--rail-art-height) * 16 / 9);
+  height: auto;
+  min-height: var(--rail-art-height);
+  border-color: transparent;
+  background: transparent;
+  overflow: visible;
+}
+
+.prometheus-home-page .prometheus-home-rail > .prometheus-card > div:first-child {
+  height: var(--rail-art-height);
+}
+
+.prometheus-home-rail > .prometheus-card:focus-within > div:first-child {
+  outline: 2px solid #fffc;
+}
+
+.prometheus-home-rail [data-home-backdrop] {
+  background-position: center;
+  background-size: cover;
+}
+
+.prometheus-home-rail .prometheus-card:focus-within [data-home-backdrop] .prometheus-poster {
+  opacity: 0;
+}
+
+.prometheus-home-page .prometheus-home-rail > .prometheus-card > div:last-child:not(:first-child) {
+  display: none;
+  position: relative;
+  inset: auto;
+  margin-top: calc(var(--rail-art-height) + .45rem);
+  padding: 0 0 .5rem;
+  background: transparent;
+  max-height: none;
+  overflow: visible;
+}
+
+.prometheus-home-page .prometheus-home-rail > .prometheus-card:focus-within > div:last-child:not(:first-child) {
+  display: block;
+}
+
+.prometheus-home-rail .prometheus-home-resume-progress {
+  position: absolute;
+  z-index: 2;
+  inset: calc(var(--rail-art-height) - .25rem) 0 auto;
+  height: .2rem;
+  background: #fff5;
+  pointer-events: none;
+}
+
+.prometheus-home-resume-progress span {
+  display: block;
+  height: 100%;
+  background: #e50914;
+}
+
+@media (max-width: 700px) {
+  .prometheus-home-rail {
+    --rail-art-height: clamp(7rem, 26vw, 13rem);
+  }
+}
+
+/* Keep catalogue cards in place while trailers play. */
+.prometheus-home-page .prometheus-catalogue-grid
+  .prometheus-card-grid > .prometheus-movie-card.is-playing {
+  grid-column: auto;
+  aspect-ratio: 2 / 3;
+}
+
+/* Expand the catalogue card itself during playback. */
+.prometheus-home-page .prometheus-catalogue-poster-rows {
+  --catalogue-gap: clamp(.5rem, 1.5vw, 1.25rem);
+  display: flex;
+  flex-direction: column;
+  gap: var(--catalogue-gap);
+  container-type: inline-size;
+}
+
+.prometheus-catalogue-poster-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--catalogue-gap);
+  min-height: calc((100cqw - 4 * var(--catalogue-gap)) * .3);
+}
+
+.prometheus-home-page .prometheus-catalogue-poster-row > .prometheus-card {
+  flex: 0 1 calc((100% - 4 * var(--catalogue-gap)) / 5);
+  min-width: 0;
+  width: auto;
+  height: auto;
+  aspect-ratio: 2 / 3;
+}
+
+.prometheus-home-page .prometheus-catalogue-poster-row > .prometheus-card.is-playing {
+  flex: 0 0 calc((100% - 4 * var(--catalogue-gap)) * .4 + var(--catalogue-gap));
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  transform: none;
+}
