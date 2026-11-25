@@ -79,22 +79,21 @@ export default function PrometheusLaunchIntro() {
   useEffect(() => {
     try {
       if (sessionStorage.getItem("prometheus-launch-seen") === "1") {
-        setVisible(false);
-        return;
+        const timer = window.setTimeout(() => setVisible(false), 0);
+        return () => window.clearTimeout(timer);
       }
     } catch {}
 
     void playPrometheusSting().catch(() => {});
-    const timer = window.setTimeout(() => dismiss(), 8000);
+    const timer = window.setTimeout(() => {
+      try {
+        sessionStorage.setItem("prometheus-launch-seen", "1");
+      } catch {}
+      setVisible(false);
+    }, 8000);
     return () => window.clearTimeout(timer);
   }, []);
 
-  function dismiss() {
-    try {
-      sessionStorage.setItem("prometheus-launch-seen", "1");
-    } catch {}
-    setVisible(false);
-  }
 
   if (!visible) return null;
 

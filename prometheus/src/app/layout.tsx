@@ -4,6 +4,7 @@ import PrometheusRemoteNavigation from "@/components/prometheus-remote-navigatio
 import type { Metadata } from "next";
 import "./globals.css";
 import "./firetv-navigation.css";
+import "./page-layout.css";
 
 export const metadata: Metadata = {
   title: "Prometheus",

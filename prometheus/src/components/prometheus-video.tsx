@@ -19,6 +19,8 @@ interface TrickplayProfile {
 
 type PlaybackMode = "direct" | "hls";
 
+const pendingStops = new Map<string, Promise<void>>();
+
 export interface PlaybackTrack {
   kind: "Audio" | "Subtitle";
   index: number;
@@ -146,6 +148,7 @@ export default function PrometheusVideo({
   const [paused, setPaused] = useState(true);
   const [time, setTime] = useState({ position: 0, duration: 0 });
   const videoRef = useRef<HTMLVideoElement>(null);
+  const stopProgressRef = useRef<(() => void) | null>(null);
   const errorRef = useRef(onError);
   const confirmedPosition = useRef<number | null>(handoff?.position ?? null);
   const playbackFailed = useRef(false);
@@ -444,6 +447,7 @@ export default function PrometheusVideo({
 
     return () => {
       cancelled = true;
+      stopProgressRef.current?.();
 
       clearRecoveryTimer();
       clearSeekWatchdog();
@@ -471,6 +475,7 @@ export default function PrometheusVideo({
     let stopped = false;
     let resumeResolved = false;
     let resume: number | null = null;
+    let reports = Promise.resolve();
 
     function report(
       event: "start" | "progress" | "stop",
@@ -482,7 +487,18 @@ export default function PrometheusVideo({
         ? Math.max(0, video!.currentTime)
         : 0;
 
-      void fetch("/api/playback/progress", {
+      const payload = JSON.stringify({
+        id: mediaId,
+        mediaSourceId,
+        playSessionId,
+        event,
+        positionSeconds: seconds,
+        mode,
+        paused: video!.paused,
+      });
+
+      reports = reports.then(async () => {
+        const response = await fetch("/api/playback/progress", {
         method: "POST",
         credentials: "same-origin",
         cache: "no-store",
@@ -490,15 +506,11 @@ export default function PrometheusVideo({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          id: mediaId,
-          mediaSourceId,
-          playSessionId,
-          event,
-          positionSeconds: seconds,
-          mode,
-          paused: video!.paused,
-        }),
+          body: payload,
+        });
+        if (response.ok && event === "stop") {
+          window.dispatchEvent(new Event("prometheus:title-changed"));
+        }
       }).catch(() => {
         // Progress failures must not interrupt playback.
       });
@@ -519,10 +531,10 @@ export default function PrometheusVideo({
       const duration = video!.duration;
 
       const target = Number.isFinite(duration)
-        ? Math.min(resume, Math.max(0, duration - (handoff ? 0 : 10)))
+        ? Math.min(resume, duration)
         : resume;
 
-      if (!handoff && target < 30) {
+      if (!handoff && target <= 0) {
         resume = null;
         return;
       }
@@ -544,6 +556,9 @@ export default function PrometheusVideo({
         return;
       }
       try {
+        await pendingStops.get(mediaId);
+        if (!active) return;
+
         const response = await fetch(
           `/api/playback/info?id=${encodeURIComponent(mediaId)}`,
           {
@@ -625,9 +640,15 @@ export default function PrometheusVideo({
       if (started && !stopped) {
         stopped = true;
         report("stop", true);
+        const saved = reports;
+        pendingStops.set(mediaId, saved);
+        void saved.then(() => {
+          if (pendingStops.get(mediaId) === saved) pendingStops.delete(mediaId);
+        });
       }
     }
 
+    stopProgressRef.current = end;
     video.addEventListener("playing", playing);
     video.addEventListener("pause", progress);
     video.addEventListener("seeked", progress);
@@ -649,7 +670,7 @@ export default function PrometheusVideo({
       ) {
         report("progress");
       }
-    }, 20000);
+    }, 5000);
 
     void loadResume();
 
@@ -670,8 +691,10 @@ export default function PrometheusVideo({
       window.removeEventListener("pagehide", end);
 
       end();
+      if (stopProgressRef.current === end) stopProgressRef.current = null;
     };
   }, [
+    src,
     mediaId,
     mediaSourceId,
     playSessionId,
@@ -1152,7 +1175,7 @@ export default function PrometheusVideo({
               </button>
             </div>
           ) : trackMenu ? (
-            <div style={{ maxHeight: "50vh", overflowY: "auto" }} aria-busy={trackBusy}>
+            <div className="prometheus-track-menu" style={{ maxHeight: "50vh", overflowY: "auto" }} aria-label="Audio and subtitles" role="group" aria-busy={trackBusy}>
               <button type="button" onClick={closeTrackMenu}>Back to controls</button>
               <p>Audio</p>
               {tracks.filter((track) => track.kind === "Audio").map((track) => (

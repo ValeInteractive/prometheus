@@ -37,15 +37,24 @@ function CollectionDetails({ id }: { id: string }) {
   return (
     <>
       <PrometheusHeader />
-      <main className="prometheus-catalog-content">
+      <main className="prometheus-catalog-content prometheus-collection-page">
         <h1 className="mb-5 text-3xl font-bold">{collection?.title ?? "Collection"}</h1>
         {problem === "login" && <Link href="/login">Sign in to view this collection</Link>}
         {(!validId || problem === "unavailable") && <p role="alert">Collection unavailable.</p>}
         {validId && !problem && !collection && <p role="status">Loading collection…</p>}
         {collection && (collection.movies.length > 0 ? (
-          <div className="prometheus-card-grid" aria-label="Films in release order">
-            {collection.movies.map((movie) => <MovieCard key={movie.id} item={movie} />)}
-          </div>
+          <section aria-labelledby="collection-watch-order">
+            <h2 id="collection-watch-order" className="mb-3 text-xl font-semibold">Watch order</h2>
+            <p className="prometheus-collection-note">{collection.movies.length} films · Release order</p>
+            <ol className="prometheus-card-grid" aria-label="Films in release order">
+              {collection.movies.map((movie, index) => (
+                <li key={movie.id} className="min-w-0">
+                  <p className="mb-2 text-sm text-neutral-300">{index + 1}. {movie.title}</p>
+                  <MovieCard item={movie} />
+                </li>
+              ))}
+            </ol>
+          </section>
         ) : <p>No films are available in this collection.</p>)}
       </main>
     </>

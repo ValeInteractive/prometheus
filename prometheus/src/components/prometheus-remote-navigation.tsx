@@ -89,7 +89,7 @@ function center(
 }
 
 const POSTER_GRID_SELECTOR = ".prometheus-card-grid, .prometheus-search-poster-grid";
-const ROW_SELECTOR = `${POSTER_GRID_SELECTOR}, .prometheus-season-rail, .prometheus-home-rail`;
+const ROW_SELECTOR = `${POSTER_GRID_SELECTOR}, .prometheus-season-rail, .prometheus-home-rail, .prometheus-catalogue-poster-row`;
 const GRID_CARD_SELECTOR = ".prometheus-card, .prometheus-search-poster-grid > li";
 
 function nearestInAdjacentRow(current: HTMLElement, direction: Direction, elements: HTMLElement[]) {
@@ -111,7 +111,8 @@ function nearestInAdjacentRow(current: HTMLElement, direction: Direction, elemen
     if (candidates[0]) return candidates[0].element;
   }
 
-  const rows = Array.from(document.querySelectorAll(ROW_SELECTOR));
+  const rows = Array.from(document.querySelectorAll(ROW_SELECTOR))
+    .filter((element) => !element.matches(".prometheus-catalogue-poster-rows"));
   const adjacent = rows[rows.indexOf(row) + step];
   if (!adjacent) return null;
 
@@ -243,16 +244,18 @@ export function focusElement(
   });
 
   if (!scroll) return;
+  const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ? "instant" as const : "smooth" as const;
   const rail = element.closest<HTMLElement>(".prometheus-home-rail");
   const card = element.closest<HTMLElement>(".prometheus-card");
   if (rail && card) {
     const section = rail.closest("section");
     rail.scrollLeft += card.getBoundingClientRect().left - rail.getBoundingClientRect().left - rail.clientLeft - 4;
-    section?.scrollIntoView({ behavior: "smooth", block: "start" });
+    section?.scrollIntoView({ behavior, block: "start" });
     return;
   }
   element.scrollIntoView({
-    behavior: "smooth",
+    behavior,
     block: "nearest",
     inline: "nearest",
   });

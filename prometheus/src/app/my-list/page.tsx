@@ -8,18 +8,18 @@ async function TabContent({ searchParams }: {
 }) {
   if ((await searchParams).view === "all") {
     return (
-      <>
+      <div className="prometheus-home-page prometheus-my-list-page">
         <PrometheusHeader tab="my-list" />
-        <main>
-          <section className="prometheus-catalog-hero"><h1>My List</h1></section>
+        <main className="prometheus-content">
+          <h1 className="prometheus-list-heading">My List</h1>
           <PrometheusLibraryBrowser mode="favourites" />
         </main>
-      </>
+      </div>
     );
   }
 
   return (
-    <div className="prometheus-home-page">
+    <div className="prometheus-home-page prometheus-my-list-page">
       <PrometheusHeader tab="my-list" />
       <main className="prometheus-content">
         <ContinueWatchingRow tab="my-list" />

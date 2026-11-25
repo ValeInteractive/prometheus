@@ -93,7 +93,7 @@ function normalizeIp(
   const canonical = hostname.slice(1, -1);
 
   // Normalize IPv4-mapped IPv6 addresses to IPv4.
-  // Example: ::ffff:c0a8:10a -> 192.168.1.10
+  // Example: ::ffff:c000:201 -> 192.0.2.1
   const mapped = /^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/.exec(
     canonical,
   );

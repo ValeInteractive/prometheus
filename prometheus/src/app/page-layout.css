@@ -1,0 +1,570 @@
+/* Shared page geometry and directional focus. */
+:root {
+  --prometheus-header-space: clamp(4.75rem, 10vh, 6.5rem);
+  --prometheus-page-gutter: clamp(1rem, 4vw, 4rem);
+}
+
+html {
+  scroll-padding-top: var(--prometheus-header-space);
+}
+
+.prometheus-header.prometheus-shared-header {
+  position: fixed;
+  inset: 0 0 auto;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  padding: .65rem var(--prometheus-page-gutter);
+  background: linear-gradient(#111, #111f 80%, #111e);
+}
+
+.prometheus-shared-header .prometheus-nav {
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: clamp(.2rem, 1.4vw, 1.4rem);
+}
+
+.prometheus-shared-header .prometheus-nav a {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  padding: .4rem .8rem;
+  white-space: nowrap;
+  font-weight: 650;
+  border-radius: 999px;
+}
+
+.prometheus-shared-header [aria-current="page"] {
+  color: white;
+  background: #ffffff30;
+}
+
+.prometheus-home-page .prometheus-content,
+.prometheus-catalog-content {
+  padding-inline: var(--prometheus-page-gutter);
+}
+
+.prometheus-home-page .prometheus-content {
+  padding-top: var(--prometheus-header-space);
+  padding-bottom: 3rem;
+}
+
+.prometheus-header + main.prometheus-catalog-content {
+  margin-top: 0;
+  padding-top: var(--prometheus-header-space);
+}
+
+.prometheus-home-page .prometheus-row,
+.prometheus-catalogue-poster-row,
+.prometheus-card-grid,
+.prometheus-season-rail,
+.prometheus-search-poster-grid,
+main :is(a, button, input, select, textarea) {
+  scroll-margin-top: var(--prometheus-header-space);
+  scroll-margin-bottom: 1rem;
+}
+
+.prometheus-button {
+  min-height: 2.75rem;
+  border-radius: .5rem;
+}
+
+@media (max-width: 650px) {
+  .prometheus-header.prometheus-shared-header {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: .4rem;
+    padding-inline: .6rem;
+  }
+
+  .prometheus-shared-header .prometheus-nav {
+    gap: .1rem;
+  }
+
+  .prometheus-shared-header .prometheus-nav a {
+    padding-inline: .4rem;
+    font-size: .75rem;
+  }
+
+  .prometheus-shared-header .prometheus-home-mark {
+    width: 3.75rem;
+  }
+
+  .prometheus-shared-header .prometheus-home-avatar {
+    width: 1.5rem;
+  }
+}
+
+/* Home, Films and Series: banner proportions and browsing rhythm. */
+.prometheus-home-page .prometheus-tv-feature {
+  min-height: clamp(20rem, 66vh, 46rem);
+  margin-bottom: clamp(1.25rem, 3vh, 2rem);
+  padding: clamp(1.25rem, 3vw, 3rem);
+  border: 1px solid #ffffff26;
+  border-radius: .9rem;
+  background-position: center 35%;
+}
+.prometheus-home-page .prometheus-tv-feature > .relative {
+  width: 100%;
+  min-width: 0;
+}
+.prometheus-home-page .prometheus-tv-feature h1 {
+  max-width: 18ch;
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 4.5rem);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+.prometheus-home-page .prometheus-tv-feature p {
+  margin-block: .8rem 1rem;
+  font-size: clamp(.9rem, 1.2vw, 1.15rem);
+  color: #eee;
+}
+.prometheus-home-page .prometheus-tv-feature .prometheus-tv-actions {
+  gap: .75rem;
+  margin-top: 1rem;
+}
+.prometheus-home-page .prometheus-tv-feature .prometheus-button {
+  min-width: 7.5rem;
+  min-height: 3rem;
+  justify-content: center;
+  padding: .7rem 1.5rem;
+  font-weight: 700;
+}
+.prometheus-home-page .prometheus-row:has(.prometheus-home-rail) {
+  margin-bottom: clamp(1.5rem, 4vh, 3rem);
+  scroll-margin-top: var(--prometheus-header-space);
+}
+.prometheus-home-page .prometheus-row:has(.prometheus-home-rail) h2 {
+  margin-bottom: .7rem;
+  font-size: clamp(1.1rem, 1.6vw, 1.55rem);
+  line-height: 1.3;
+  font-weight: 700;
+}
+.prometheus-home-page .prometheus-home-rail {
+  --rail-art-height: clamp(12rem, 34vh, 25rem);
+  --rail-gap: clamp(.65rem, 1vw, 1.2rem);
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: 4px;
+  padding-top: 6px;
+  padding-bottom: .65rem;
+}
+.prometheus-home-page .prometheus-home-rail > .prometheus-card:focus-within > div:first-child {
+  border-radius: .5rem;
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+.prometheus-home-page .prometheus-home-rail .prometheus-card h3 {
+  line-height: 1.35;
+}
+@media (max-width: 700px) {
+  .prometheus-home-page .prometheus-tv-feature {
+    min-height: clamp(18rem, 54vh, 30rem);
+    padding: 1.25rem;
+  }
+  .prometheus-home-page .prometheus-home-rail {
+    --rail-art-height: clamp(10rem, 42vw, 17rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .prometheus-home-page .prometheus-home-rail,
+  .prometheus-home-page .prometheus-home-rail > .prometheus-card {
+    scroll-behavior: auto;
+    transition: none;
+  }
+}
+
+
+/* Continuous catalogue and genre browsing. */
+.prometheus-home-page .prometheus-catalogue-grid {
+  padding-bottom: 4rem;
+}
+.prometheus-catalogue-grid > h1 {
+  margin-bottom: 1.25rem;
+  font-size: clamp(1.5rem, 2.25vw, 2.25rem);
+  line-height: 1.2;
+}
+.prometheus-catalogue-grid nav[aria-label] {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: .6rem;
+  overflow-x: auto;
+  padding: .3rem;
+  margin-inline: -.3rem;
+  scrollbar-width: thin;
+  scroll-padding-inline: .3rem;
+}
+.prometheus-catalogue-grid nav[aria-label] .prometheus-button {
+  flex: 0 0 auto;
+  min-height: 2.75rem;
+  white-space: nowrap;
+  border-radius: .5rem;
+}
+.prometheus-catalogue-grid nav[aria-label] [aria-current] {
+  background: #c9ad7c;
+  color: #111;
+  border-color: #c9ad7c;
+}
+.prometheus-catalogue-grid :is(a, button):focus-visible {
+  outline: 3px solid white;
+  outline-offset: 3px;
+}
+.prometheus-catalogue-grid .prometheus-row h2 {
+  margin-bottom: .9rem;
+  font-size: clamp(1.15rem, 1.6vw, 1.55rem);
+  line-height: 1.3;
+}
+.prometheus-catalogue-count {
+  color: #b5b5b5;
+  margin-block: .25rem .75rem;
+  font-size: .9rem;
+}
+.prometheus-home-page .prometheus-catalogue-poster-rows {
+  gap: clamp(1rem, 2.5vh, 2rem);
+}
+.prometheus-catalogue-poster-row {
+  padding-block: 5px;
+  scroll-margin-top: calc(var(--prometheus-header-space) + .5rem);
+}
+.prometheus-home-page .prometheus-catalogue-poster-row > .prometheus-card {
+  border-radius: .6rem;
+  transform: none;
+}
+.prometheus-catalogue-grid .prometheus-genre-browser > ul {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(.75rem, 1.5vw, 1.5rem);
+}
+.prometheus-catalogue-grid [data-genre-tile] {
+  min-height: clamp(7rem, 15vh, 10rem);
+  background: linear-gradient(135deg, #28251f, #171717);
+  border-color: #ffffff26;
+  padding: clamp(1rem, 2vw, 2rem);
+}
+.prometheus-catalogue-grid [data-genre-tile]:is(:hover, :focus-visible) {
+  background: linear-gradient(135deg, #41382b, #202020);
+  border-color: #c9ad7c;
+}
+@media (max-width: 700px) {
+  .prometheus-catalogue-grid .prometheus-genre-browser > ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+/* Search keyboard and personal library. */
+.prometheus-tv-search {
+  padding-block: .5rem 2rem;
+}
+.prometheus-tv-search > *,
+.prometheus-tv-search section {
+  min-width: 0;
+}
+.prometheus-tv-search input[type="search"] {
+  min-height: 3rem;
+  border-radius: .5rem;
+  font-size: 1.05rem;
+}
+.prometheus-tv-search [aria-label="On-screen keyboard"] {
+  gap: .3rem;
+}
+.prometheus-tv-search [aria-label="On-screen keyboard"] button {
+  min-height: clamp(2.75rem, 5vh, 3.5rem);
+  border-radius: .35rem;
+}
+.prometheus-tv-search :is(input, button, a):focus-visible,
+.prometheus-my-list-page :is(button, a):focus-visible {
+  outline: 3px solid white;
+  outline-offset: 3px;
+}
+.prometheus-search-clear {
+  min-height: 2.75rem;
+  padding: .5rem 1rem;
+  border: 1px solid #ffffff40;
+  border-radius: .5rem;
+  background: #ffffff12;
+}
+.prometheus-tv-search [aria-label="Search by genre"] {
+  gap: .25rem;
+  padding-top: .5rem;
+}
+.prometheus-tv-search [aria-label="Search by genre"] button {
+  min-height: 2.75rem;
+  border-radius: .5rem;
+}
+.prometheus-tv-search [aria-pressed="true"] {
+  background: #c9ad7c;
+  color: #111;
+}
+.prometheus-tv-search h1,
+.prometheus-list-heading {
+  font-size: clamp(1.5rem, 2.25vw, 2.25rem);
+  line-height: 1.25;
+  margin-bottom: .75rem;
+}
+.prometheus-search-count {
+  color: #b5b5b5;
+  font-size: .9rem;
+  margin-bottom: 1rem;
+  overflow-wrap: anywhere;
+}
+.prometheus-search-message {
+  padding-block: 1rem;
+  color: #ccc;
+}
+.prometheus-search-message .prometheus-button {
+  margin-top: 1rem;
+}
+.prometheus-tv-search .prometheus-search-poster-grid {
+  row-gap: 1rem !important;
+}
+.prometheus-my-list-page .prometheus-catalog-content {
+  padding: 0;
+  margin-top: 1.5rem;
+}
+.prometheus-my-list-page .prometheus-search-poster-grid > li {
+  min-width: 0;
+}
+.prometheus-my-list-page .prometheus-search-poster-grid > li > a {
+  padding: 0;
+}
+.prometheus-my-list-page .prometheus-search-poster-grid > li > a > span:first-of-type {
+  margin-top: .6rem;
+  font-weight: 650;
+}
+.prometheus-my-list-page button:disabled {
+  opacity: .4;
+}
+@media (max-width: 767px) {
+  .prometheus-tv-search {
+    gap: 1.5rem;
+  }
+  .prometheus-tv-search [aria-label="Search by genre"] {
+    display: flex;
+    overflow-x: auto;
+    padding: .5rem .25rem;
+  }
+  .prometheus-tv-search [aria-label="Search by genre"] button {
+    flex: 0 0 auto;
+  }
+}
+
+
+/* Movie, series and collection detail pages. */
+.prometheus-detail-content {
+  padding: var(--prometheus-header-space) var(--prometheus-page-gutter) 3rem;
+  max-width: 100%;
+}
+.prometheus-detail-page .prometheus-tv-detail {
+  margin-inline: calc(-1 * var(--prometheus-page-gutter));
+  min-height: 66vh;
+  padding: clamp(2rem, 5vh, 4rem) var(--prometheus-page-gutter);
+  background-position: center 35%;
+  gap: clamp(1.5rem, 3vw, 3rem);
+}
+.prometheus-detail-page .prometheus-tv-detail-copy {
+  max-width: min(48rem, 65vw);
+  min-width: 0;
+}
+.prometheus-detail-page .prometheus-tv-detail-copy h1 {
+  font-size: clamp(2rem, 4vw, 4.5rem);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+.prometheus-detail-page .prometheus-tv-detail-copy p {
+  line-height: 1.65;
+}
+.prometheus-detail-page .prometheus-tv-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .75rem;
+}
+.prometheus-detail-page .prometheus-tv-detail-actions :is(a, button) {
+  margin: 0;
+  min-height: 3rem;
+  border-radius: .5rem;
+  justify-content: center;
+}
+.prometheus-detail-page :is(a, button):focus-visible,
+.prometheus-collection-page :is(a, button):focus-visible {
+  outline: 3px solid white;
+  outline-offset: 3px;
+}
+.prometheus-detail-page section > h2,
+.prometheus-collection-page section > h2 {
+  font-size: clamp(1.25rem, 1.8vw, 1.75rem);
+  line-height: 1.3;
+}
+.prometheus-detail-page .prometheus-season-rail {
+  padding-block: .5rem 1rem;
+  scroll-padding-inline: .5rem;
+  overscroll-behavior-x: contain;
+}
+.prometheus-detail-page .prometheus-episode-card {
+  padding: clamp(1rem, 2vw, 1.75rem);
+  background: #191919;
+  border-color: #ffffff20;
+  scroll-margin-top: var(--prometheus-header-space);
+}
+.prometheus-detail-page .prometheus-episode-card:focus-within {
+  border-color: #c9ad7c;
+  background: #222;
+}
+.prometheus-episode-card a {
+  min-width: 10rem;
+  background: white;
+  color: #111;
+}
+.prometheus-episode-card a:hover {
+  background: #ddd;
+}
+.prometheus-collection-page {
+  padding-bottom: 3rem;
+}
+.prometheus-collection-note {
+  margin-bottom: 1.5rem;
+  color: #b5b5b5;
+}
+.prometheus-collection-page .prometheus-card-grid > li > p {
+  min-height: 2.8em;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 700px) {
+  .prometheus-detail-page .prometheus-tv-detail {
+    flex-direction: column;
+    align-items: flex-start;
+    min-height: 55vh;
+  }
+  .prometheus-detail-page .prometheus-tv-detail-copy {
+    max-width: 100%;
+  }
+  .prometheus-detail-page .prometheus-tv-detail-poster {
+    width: 8rem;
+  }
+}
+
+
+/* Player menus, sign-in and the single household profile. */
+.prometheus-video-shell .prometheus-tv-player-controls {
+  padding-inline: clamp(1rem, 4vw, 4rem);
+  padding-bottom: clamp(1rem, 4vh, 2.5rem);
+  background: linear-gradient(transparent, #000c 30%, #000f);
+}
+.prometheus-video-shell .prometheus-tv-player-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .65rem;
+}
+.prometheus-video-shell .prometheus-tv-player-options button {
+  min-height: 2.75rem;
+  margin: 0;
+  padding: .65rem 1.1rem;
+}
+.prometheus-video-shell :is(button, input, a) {
+  scroll-margin: .75rem;
+}
+.prometheus-video-shell .prometheus-playback-timeline input {
+  min-height: 2.75rem;
+}
+.prometheus-video-shell .prometheus-playback-timeline span {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.prometheus-video-shell :is(.prometheus-accessibility-menu, .prometheus-track-menu) {
+  width: min(100%, 48rem);
+  max-height: 50vh;
+  overflow-y: auto;
+  margin-inline: auto;
+  padding: 1rem;
+  border: 1px solid #ffffff30;
+  border-radius: .75rem;
+  background: #151515f5;
+  scroll-padding-block: .75rem;
+}
+.prometheus-video-shell :is(.prometheus-accessibility-menu, .prometheus-track-menu) button {
+  min-height: 2.75rem;
+  margin: .25rem;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.prometheus-video-shell .prometheus-track-menu > p {
+  margin-block: 1rem .4rem;
+  font-weight: 700;
+}
+.prometheus-video-shell :is(.prometheus-track-menu, .prometheus-accessibility-menu) button[aria-pressed="true"] {
+  background: #c9ad7c;
+  color: #111;
+}
+.prometheus-video-shell .prometheus-accessibility-menu dl {
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+.prometheus-video-shell .prometheus-accessibility-menu dd {
+  min-width: 0;
+}
+.prometheus-login-page {
+  background: radial-gradient(ellipse at top, #28231b, #090909 65%);
+}
+.prometheus-login-page > div {
+  max-width: 30rem;
+}
+.prometheus-login-page section {
+  border-radius: 1rem;
+  border-color: #ffffff26;
+}
+.prometheus-login-page input,
+.prometheus-login-page button[type="submit"] {
+  min-height: 3.25rem;
+}
+.prometheus-login-page input:focus-visible {
+  border-color: #c9ad7c;
+  outline: 2px solid #c9ad7c;
+  outline-offset: 2px;
+  box-shadow: none;
+}
+.prometheus-login-page button[type="submit"] {
+  background: #c9ad7c;
+  color: #111;
+}
+.prometheus-login-page button[type="submit"]:hover {
+  background: #ddc696;
+}
+.prometheus-login-page :is(a, button):focus-visible,
+.profiles-page a:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 4px;
+}
+.profiles-page {
+  background: radial-gradient(ellipse at top, #28231b, #090909 65%);
+}
+.profiles-page .profiles-content {
+  padding-bottom: 3rem;
+}
+.profiles-page .profiles-content h1 {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+}
+.profiles-page .prometheus-profile-picture {
+  border-color: #c9ad7c;
+  box-shadow: 0 0 30px #c9ad7c20;
+  border-radius: .75rem;
+}
+.profiles-page .prometheus-profile-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: .75rem 1.75rem;
+  border-radius: .5rem;
+  background: #c9ad7c;
+  color: #111;
+}
+@media (max-width: 650px) {
+  .prometheus-video-shell .prometheus-tv-player-options {
+    gap: .4rem;
+  }
+  .prometheus-video-shell .prometheus-tv-player-options button {
+    padding-inline: .75rem;
+    font-size: .85rem;
+  }
+}

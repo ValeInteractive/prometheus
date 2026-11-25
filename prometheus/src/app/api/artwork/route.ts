@@ -111,7 +111,8 @@ async function verifyMediaAccess(
     (item.Type === "Movie" ||
       item.Type === "Series" ||
       item.Type === "Season" ||
-      item.Type === "Episode")
+      item.Type === "Episode" ||
+      item.Type === "BoxSet")
   );
 }
 

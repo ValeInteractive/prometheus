@@ -160,10 +160,9 @@ export async function GET(request: NextRequest): Promise<Response> {
   const modes = params.getAll("mode");
 
   if (
-    ids.length !== 1 ||
-    !ID.test(ids[0]) ||
+    (modes[0] === "collections" ? ids.length !== 0 : ids.length !== 1 || !ID.test(ids[0])) ||
     modes.length > 1 ||
-    (modes.length === 1 && !["trailers", "collection"].includes(modes[0])) ||
+    (modes.length === 1 && !["trailers", "collection", "collections"].includes(modes[0])) ||
     [...params.keys()].some((key) => key !== "id" && key !== "mode")
   ) {
     return respond({ error: "Invalid movie request." }, 400);
@@ -182,6 +181,56 @@ export async function GET(request: NextRequest): Promise<Response> {
 
     const base = serverOrigin();
     const userId = session.jellyfinUserId;
+    if (modes[0] === "collections") {
+      const url = new URL(`/Users/${userId}/Items`, base);
+      url.search = new URLSearchParams({
+        IncludeItemTypes: "BoxSet", Recursive: "true", SortBy: "SortName",
+      }).toString();
+
+      const payload = await getJson(url, token);
+      if (!record(payload) || !Array.isArray(payload.Items)) {
+        return respond({ error: "Collections unavailable." }, 503);
+      }
+
+      const sets = payload.Items.filter(record).flatMap((item) => {
+        const title = text(item.Name, 300);
+        return item.Type === "BoxSet" && typeof item.Id === "string" && ID.test(item.Id) && title
+          ? [{ id: item.Id, title, hasPoster: hasPrimaryImage(item) }]
+          : [];
+      });
+
+      async function loadMembers(
+        collection: (typeof sets)[number],
+        accessToken: string,
+      ) {
+        const membersUrl = new URL(`/Users/${userId}/Items`, base);
+        membersUrl.search = new URLSearchParams({
+          ParentId: collection.id, IncludeItemTypes: "Movie", Recursive: "false",
+        }).toString();
+        const members = await getJson(membersUrl, accessToken);
+        if (!record(members) || !Array.isArray(members.Items)) return null;
+
+        const movieIds = [...new Set(members.Items.filter(record).flatMap((item) =>
+          item.Type === "Movie" && typeof item.Id === "string" && ID.test(item.Id)
+            ? [item.Id.toLowerCase()]
+            : [],
+        ))];
+
+        return movieIds.length >= 2 ? { ...collection, movieIds } : null;
+      }
+
+      const collections: NonNullable<Awaited<ReturnType<typeof loadMembers>>>[] = [];
+      for (let start = 0; start < sets.length; start += 6) {
+        const batch = await Promise.all(
+          sets.slice(start, start + 6).map((collection) => loadMembers(collection, token)),
+        );
+        for (const collection of batch) {
+          if (collection) collections.push(collection);
+        }
+      }
+      return respond({ collections }, 200);
+    }
+
     const movieId = ids[0];
 
     const itemUrl = new URL(

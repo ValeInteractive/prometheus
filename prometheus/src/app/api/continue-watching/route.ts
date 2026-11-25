@@ -13,7 +13,6 @@ const ID_PATTERN = /^[a-f0-9]{32}$/i;
 
 const REQUEST_TIMEOUT_MS = 15000;
 const MAX_ITEMS = 20;
-const TICKS_PER_SECOND = 10_000_000;
 
 interface ContinueWatchingItem {
   id: string;
@@ -163,19 +162,11 @@ function sanitiseItem(
     return null;
   }
 
-  const seconds =
-    positionTicks / TICKS_PER_SECOND;
-
   const percentage =
     (positionTicks / runtimeTicks) * 100;
 
-  // Ignore content barely started or
-  // effectively completed.
-  if (
-    seconds < 30 ||
-    percentage >= 95 ||
-    positionTicks >= runtimeTicks
-  ) {
+  // Jellyfin decides which unfinished titles qualify for its Resume feed.
+  if (positionTicks <= 0 || positionTicks >= runtimeTicks) {
     return null;
   }
 

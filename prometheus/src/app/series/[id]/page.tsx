@@ -158,11 +158,13 @@ function EpisodeCard({
   const progress = episodeProgress(episode);
 
   return (
-    <article className="rounded-xl border border-white/10 bg-neutral-900 p-5">
+    <article className="prometheus-episode-card rounded-xl border border-white/10 bg-neutral-900 p-5">
       <div className="flex flex-col justify-between gap-5 md:flex-row">
         <div className="min-w-0 flex-1">
           <p className="mb-2 text-sm font-semibold text-red-400">
             {episodeNumber(episode) || "Episode"}
+            {episode.runtimeTicks && episode.runtimeTicks > 0
+              ? ` · ${Math.round(episode.runtimeTicks / 600_000_000)} min` : ""}
           </p>
 
           <h3 className="text-xl font-bold text-white">
@@ -202,7 +204,9 @@ function EpisodeCard({
                 </div>
 
                 <p className="mt-2 text-xs text-neutral-400">
-                  {progress}% watched
+                  {episode.runtimeTicks && episode.playbackPositionTicks != null
+                    ? `${Math.ceil(Math.max(0, episode.runtimeTicks - episode.playbackPositionTicks) / 600_000_000)}m left`
+                    : `${progress}% watched`}
                 </p>
               </div>
             )}
@@ -211,6 +215,7 @@ function EpisodeCard({
         <div className="flex shrink-0 items-center">
           <Link
             href={`/watch/${encodeURIComponent(episode.id)}`}
+            aria-label={`${progress !== null && progress > 0 && !episode.played ? "Resume" : "Watch"} ${episodeNumber(episode)} ${episode.title}`}
             className="inline-flex min-h-12 items-center justify-center rounded-lg bg-red-700 px-6 py-3 font-semibold text-white transition hover:bg-red-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
           >
             {progress !== null &&
@@ -384,10 +389,10 @@ function SeriesDetails() {
     : `${seasonNumber == null ? "" : `S${seasonNumber} `}E${episodeNumber}`;
 
   return (
-    <main className="min-h-screen bg-[#090909] text-white">
+    <main className="prometheus-detail-page min-h-screen bg-[#090909] text-white">
       <PrometheusHeader />
 
-      <div className="mx-auto max-w-6xl space-y-10 px-5 py-10 md:px-8">
+      <div className="prometheus-detail-content mx-auto space-y-10">
         {state.status === "loading" && (
           <p role="status" className="text-neutral-400">
             Loading TV series...
@@ -504,7 +509,7 @@ function SeriesDetails() {
             </section>
 
             {selectedSeasonId && (
-              <section className="space-y-5">
+              <section className="prometheus-episodes-section space-y-5">
                 <h2 className="text-2xl font-bold">
                   Episodes
                 </h2>

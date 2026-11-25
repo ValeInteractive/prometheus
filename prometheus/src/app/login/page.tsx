@@ -75,7 +75,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#090909] px-5 py-12 text-white">
+    <main className="prometheus-login-page flex min-h-screen items-center justify-center bg-[#090909] px-5 py-12 text-white">
       <div className="w-full max-w-md">
         <div className="mb-10 flex justify-center">
           <Link href="/" aria-label="Prometheus homepage">
@@ -101,6 +101,7 @@ export default function LoginPage() {
 
           <form
             onSubmit={handleSubmit}
+            aria-busy={loading}
             className="mt-8 space-y-5"
           >
             <div>

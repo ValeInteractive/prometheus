@@ -61,13 +61,13 @@ export default function FeaturedTrailer({ id, type }: { id: string; type: "Movie
       className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]"
       style={{ opacity: sources.local && !started ? 0 : 1 }}>
       {sources.local ? (
-        <video className="h-full w-full object-cover" autoPlay playsInline
+        <video className="h-full w-full object-contain bg-black" autoPlay playsInline
           src={`/api/playback/stream?id=${encodeURIComponent(sources.local)}`}
           onPlaying={() => setStarted(true)}
           onEnded={() => setStopped(true)}
           onError={() => setSources({ remote: sources.remote })} />
       ) : (
-        <iframe className="absolute left-1/2 top-1/2 h-full min-h-[52vw] w-full -translate-x-1/2 -translate-y-1/2 border-0"
+        <iframe className="absolute inset-0 h-full w-full border-0 bg-black"
           title="Featured trailer" tabIndex={-1} allow="autoplay"
           referrerPolicy="strict-origin-when-cross-origin" src={sources.remote} />
       )}

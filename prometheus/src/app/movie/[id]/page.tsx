@@ -161,10 +161,10 @@ function MovieDetailsPageContent() {
     : null;
 
   return (
-    <main className="min-h-screen bg-[#090807] text-white">
+    <main className="prometheus-detail-page min-h-screen bg-[#090807] text-white">
       <PrometheusHeader />
 
-      <div className="mx-auto max-w-6xl space-y-12 px-5 py-10 md:px-8">
+      <div className="prometheus-detail-content mx-auto space-y-12">
         <section className="prometheus-tv-detail" data-has-backdrop={Boolean(movie.hasBackdrop)}
               style={movie.hasBackdrop ? { backgroundImage:
                 `linear-gradient(90deg, #080808f5 12%, #080808a0 47%, transparent), linear-gradient(0deg, #080808, transparent 45%), url("/api/artwork?id=${encodeURIComponent(movie.id)}&type=Backdrop")` } : undefined}>

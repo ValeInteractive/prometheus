@@ -12,8 +12,16 @@ import {
   useState,
 } from "react";
 
+interface CollectionSummary {
+  id: string;
+  title: string;
+  hasPoster: boolean;
+  movieIds: string[];
+}
+
 interface MediaItem {
   id: string;
+  collection?: { count: number; fallbackPosterId?: string };
   type: "Movie" | "Series";
   title: string;
   overview: string | null;
@@ -157,6 +165,24 @@ export function MediaRow({
   emptyMessage?: string;
 }) {
   function renderCard(item: MediaItem) {
+    if (item.collection) {
+      const label = `${item.title} · ${item.collection.count} films`;
+      return (
+        <article key={item.id} className="prometheus-card">
+          <div>
+            <Link href={`/collections/${item.id}`} aria-label={label}
+              data-poster-id={item.id} data-poster-title={item.title}
+              className="absolute inset-0 block">
+              <PrometheusPoster id={item.collection.fallbackPosterId ?? item.id}
+                title={item.title} hasPoster={item.hasPoster} />
+              <span className="absolute inset-x-0 bottom-0 bg-black/80 px-3 py-2 text-sm font-semibold text-white">
+                {label}
+              </span>
+            </Link>
+          </div>
+        </article>
+      );
+    }
     return item.type === "Movie" || homeRail || cataloguePreviews ? (
       <MovieCard key={item.id} item={item} homeRail={homeRail} seriesPreview={item.type === "Series"} />
     ) : (
@@ -218,6 +244,10 @@ export default function LibraryRows({
     ? requestedLetter
     : null;
   const type = category === "movies" ? "Movie" : "Series";
+  const groupCollections = type === "Movie" && view === "all";
+  const [collections, setCollections] = useState<CollectionSummary[]>([]);
+
+
 
   function catalogueHref(
     view: "all" | "genres",
@@ -237,6 +267,26 @@ export default function LibraryRows({
 
   const [refreshNumber, setRefreshNumber] =
     useState(0);
+
+  useEffect(() => {
+    if (!groupCollections) return;
+    const controller = new AbortController();
+    async function loadCollections() {
+      try {
+        const response = await fetch("/api/movie?mode=collections", {
+          cache: "no-store", signal: controller.signal,
+        });
+        if (!response.ok) throw new Error("Collections unavailable.");
+        const data = await response.json();
+        if (!Array.isArray(data.collections)) throw new Error("Invalid collections response.");
+        if (!controller.signal.aborted) setCollections(data.collections);
+      } catch {
+        if (!controller.signal.aborted) setCollections([]);
+      }
+    }
+    void loadCollections();
+    return () => controller.abort();
+  }, [groupCollections, refreshNumber]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -379,7 +429,43 @@ export default function LibraryRows({
   const items = state.items;
   const groups = view === "genres" ? groupItemsByGenre(items) : [];
   const selected = groups.find((group) => group.genre.toLowerCase() === genre?.toLowerCase());
-  const titles = view === "all" ? items : selected?.items ?? [];
+  const standalone = new Map(items.map((item) => [item.id.toLowerCase(), item]));
+  const collectionCards: MediaItem[] = [];
+
+  if (groupCollections) {
+    for (const collection of collections) {
+      const members = collection.movieIds.flatMap((id) => {
+        const item = standalone.get(id.toLowerCase());
+        return item ? [item] : [];
+      });
+      if (members.length < 2) continue;
+
+      const fallbackPoster = members.find((item) => item.hasPoster);
+      const newest = members.reduce((latest, item) =>
+        (item.dateCreated ?? "") > (latest.dateCreated ?? "") ? item : latest,
+      );
+      const years = members.flatMap((item) => item.productionYear === null ? [] : [item.productionYear]);
+
+      collectionCards.push({
+        ...members[0],
+        id: collection.id,
+        title: collection.title,
+        productionYear: years.length ? Math.min(...years) : null,
+        dateCreated: newest.dateCreated,
+        hasPoster: collection.hasPoster || Boolean(fallbackPoster),
+        collection: {
+          count: members.length,
+          fallbackPosterId: collection.hasPoster ? undefined : fallbackPoster?.id,
+        },
+      });
+
+      for (const member of members) standalone.delete(member.id.toLowerCase());
+    }
+  }
+
+  const titles = view === "all"
+    ? [...standalone.values(), ...collectionCards]
+    : selected?.items ?? [];
   const letters = new Set(titles.map((item) => titleInitial(item.title)));
   const results = titles.filter((item) => !letter || titleInitial(item.title) === letter)
     .sort((first, second) => {
@@ -403,7 +489,7 @@ export default function LibraryRows({
       </nav>
 
       {view === "genres" && !selected ? (
-        <section className="prometheus-row">
+        <section className="prometheus-row prometheus-genre-browser">
           <h2>Genres</h2>
           <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-4">
             {groups.map(({ genre, items }) => (
@@ -446,6 +532,10 @@ export default function LibraryRows({
               ))}
             </nav>
           )}
+          <p className="prometheus-catalogue-count">
+            {results.length} {results.length === 1 ? "title" : "titles"}
+            {letter ? ` beginning with ${letter}` : ""}
+          </p>
           <MediaRow cataloguePreviews id={selected ? `${category}-genre` : category}
             title={selected?.genre ?? `All ${categoryTitle}`}
             items={results} />

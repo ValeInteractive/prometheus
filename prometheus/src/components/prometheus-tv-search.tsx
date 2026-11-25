@@ -11,6 +11,7 @@ const normalise = (text: string) => text.normalize("NFD").replace(/\p{M}/gu, "")
 
 export default function PrometheusTvSearch() {
   const [library, setLibrary] = useState<Library | "login" | "error" | null>(null);
+  const [retryNumber, setRetryNumber] = useState(0);
   const [query, setQuery] = useState("");
   const [genre, setGenre] = useState("");
   const firstKey = useRef<HTMLButtonElement>(null);
@@ -34,7 +35,7 @@ export default function PrometheusTvSearch() {
     }
     void load();
     return () => controller.abort();
-  }, []);
+  }, [retryNumber]);
 
   const titles = library && typeof library !== "string"
     ? [...new Map([...library.movies, ...library.series].map((item) => [item.id.toLowerCase(), item])).values()]
@@ -56,7 +57,7 @@ export default function PrometheusTvSearch() {
   }
 
   return (
-    <div className="grid items-start gap-6 md:grid-cols-[minmax(12rem,23%)_minmax(0,1fr)] md:gap-[4vw]">
+    <div className="prometheus-tv-search grid items-start gap-6 md:grid-cols-[minmax(12rem,23%)_minmax(0,1fr)] md:gap-[4vw]">
       <div className="space-y-3">
         <input type="search" aria-label="Search films and series" placeholder="Search"
           className="w-full rounded border border-white/25 bg-white/5 px-3 py-2"
@@ -67,6 +68,8 @@ export default function PrometheusTvSearch() {
               firstKey.current?.focus();
             }
           }} />
+        {(query || genre) && <button type="button" className="prometheus-search-clear"
+          onClick={() => { updateQuery(""); setGenre(""); }}>Clear search</button>}
         <div className="grid grid-cols-6 gap-1" role="group" aria-label="On-screen keyboard">
           <button type="button" aria-label="Space" className={`${keyStyle} col-span-3`}
             onClick={() => updateQuery(query + " ")}>␣</button>
@@ -95,9 +98,21 @@ export default function PrometheusTvSearch() {
         </h1>
         {library === null && <p role="status">Loading titles…</p>}
         {library === "login" && <Link href="/login">Sign in to search your library</Link>}
-        {library === "error" && <p role="alert">Search is temporarily unavailable.</p>}
+        {library === "error" && <div className="prometheus-search-message">
+          <p role="alert">Search is temporarily unavailable.</p>
+          <button type="button" className="prometheus-button prometheus-button-secondary"
+            onClick={() => { setLibrary(null); setRetryNumber((value) => value + 1); }}>Try Again</button>
+        </div>}
+        {library && typeof library !== "string" && (
+          <p className="prometheus-search-count" role="status" aria-atomic="true">
+            {results.length} {results.length === 1 ? "title" : "titles"}
+            {term ? ` matching “${query.trim()}”` : genre ? ` in ${genre}` : " to explore"}
+          </p>
+        )}
         {library && typeof library !== "string" && results.length === 0 && (
-          <p role="status">{term ? "No matching titles." : "No titles available."}</p>
+          <p className="prometheus-search-message">{term
+            ? "Try another title or choose a genre on the left."
+            : "No titles available in your library yet."}</p>
         )}
         <ul className="prometheus-search-poster-grid gap-2! grid-cols-4!">
           {results.map((item) => (
